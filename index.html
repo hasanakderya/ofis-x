@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <meta name="description" content="Ofis Giris-Cikis Takip Sistemi"/>
+  <meta name="theme-color" content="#1e293b"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Ofis Takip"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/pwa/manifest.json"/>
+
+  <!-- Apple Touch Icon (iOS ana ekrana ekle) -->
+  <link rel="apple-touch-icon" href="/assets/icons/personel.svg"/>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="stylesheet" href="/css/responsive.css"/>
+
+  <!-- QR Kutuphaneleri -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+  <title>Ofis Giris-Cikis Takip</title>
+</head>
+<body>
+
+<!-- OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="kapatSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div style="width:36px;height:36px;background:linear-gradient(135deg,#2563eb,#10b981);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">&#127970;</div>
+    <div class="logo-metin">
+      <div class="app-name">Ofis Takip</div>
+      <div class="logo-alt">Giris-Cikis Sistemi</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-grup-baslik">Ana Menu</div>
+    <div class="nav-item aktif" data-sayfa="panel" onclick="App.sayfaGoster('panel');kapatSidebar()">
+      <span class="nav-ikon">&#128202;</span><span>Panel</span>
+    </div>
+    <div class="nav-item" data-sayfa="qrGiris" onclick="App.sayfaGoster('qrGiris');kapatSidebar()">
+      <span class="nav-ikon">&#128306;</span><span>QR ile Giris</span>
+    </div>
+    <div class="nav-item" data-sayfa="giris" onclick="App.sayfaGoster('giris');kapatSidebar()">
+      <span class="nav-ikon">&#128994;</span><span>Manuel Giris</span>
+    </div>
+    <div class="nav-item" data-sayfa="cikis" onclick="App.sayfaGoster('cikis');kapatSidebar()">
+      <span class="nav-ikon">&#128308;</span><span>Cikis Yap</span>
+    </div>
+
+    <div class="nav-grup-baslik">Yonetim</div>
+    <div class="nav-item" data-sayfa="personelListesi" onclick="App.sayfaGoster('personelListesi');kapatSidebar()">
+      <span class="nav-ikon">&#128101;</span><span>Personeller</span>
+    </div>
+    <div class="nav-item" data-sayfa="raporlar" onclick="App.sayfaGoster('raporlar');kapatSidebar()">
+      <span class="nav-ikon">&#128203;</span><span>Raporlar</span>
+    </div>
+
+    <div class="nav-grup-baslik sadece-yonetici" style="display:none;">Yonetici</div>
+    <div class="nav-item sadece-yonetici" data-sayfa="maasListesi" onclick="App.sayfaGoster('maasListesi');kapatSidebar()" style="display:none;">
+      <span class="nav-ikon">&#128176;</span><span>Maas Yonetimi</span>
+    </div>
+
+    <div class="nav-grup-baslik">Sistem</div>
+    <div class="nav-item" onclick="App.yedekle();kapatSidebar()">
+      <span class="nav-ikon">&#128190;</span><span>Yedekle</span>
+    </div>
+    <div class="nav-item" onclick="document.getElementById('yukleme-input').click();kapatSidebar()">
+      <span class="nav-ikon">&#128194;</span><span>Veri Yukle</span>
+    </div>
+  </nav>
+
+  <div class="sidebar-alt">
+    <button id="oturum-btn" class="btn btn-gri" style="width:100%;font-size:.8rem;justify-content:center;"
+            onclick="App.modalAc('modal-yonetici-giris')">
+      &#128274; Yonetici Girisi
+    </button>
+    <div style="margin-top:8px;font-size:.7rem;color:#475569;">v3.0 — 2026</div>
+  </div>
+</aside>
+
+<input type="file" id="yukleme-input" accept=".json" style="display:none" onchange="App.yukle(this)"/>
+
+<!-- ANA ICERIK -->
+<div class="icerik-alani">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="hamburger" id="hamburger-btn" onclick="acSidebar()">&#9776;</button>
+      <div class="header-sol">
+        <div class="sayfa-baslik app-name">Ofis Giris-Cikis</div>
+        <div class="sayfa-alt canli-tarih"></div>
+      </div>
+    </div>
+    <div class="header-sag">
+      <div class="canli-saat">00:00:00</div>
+    </div>
+  </header>
+
+  <!-- PANEL -->
+  <main class="sayfa aktif" id="sayfa-panel">
+    <div class="stat-grid">
+      <div class="stat-kart"><div class="stat-ikon giris">&#128994;</div><div><div class="stat-deger" id="stat-giris">0</div><div class="stat-etiket">Bugun Giris</div></div></div>
+      <div class="stat-kart"><div class="stat-ikon cikis">&#128308;</div><div><div class="stat-deger" id="stat-cikis">0</div><div class="stat-etiket">Bugun Cikis</div></div></div>
+      <div class="stat-kart"><div class="stat-ikon ofis">&#127962;</div><div><div class="stat-deger" id="stat-ofiste">0</div><div class="stat-etiket">Ofisteki</div></div></div>
+      <div class="stat-kart"><div class="stat-ikon toplam">&#128101;</div><div><div class="stat-deger" id="stat-toplam">0</div><div class="stat-etiket">Personel</div></div></div>
+      <div class="stat-kart"><div class="stat-ikon gec">&#9888;</div><div><div class="stat-deger" id="stat-gec">0</div><div class="stat-etiket">Gec Giris</div></div></div>
+      <div class="stat-kart"><div class="stat-ikon sure">&#9200;</div><div><div class="stat-deger" id="stat-sure" style="font-size:1rem;margin-top:4px;">-</div><div class="stat-etiket">Ort. Calisma</div></div></div>
+    </div>
+    <div class="panel-grid">
+      <div class="kart"><div class="kart-baslik">&#127962; Ofisteki Personel</div><div id="ofisteki-liste"><p class="bos-mesaj">Yukleniyor...</p></div></div>
+      <div class="kart"><div class="kart-baslik">&#128336; Bugunun Hareketleri</div><div id="son-hareketler"><p class="bos-mesaj">Yukleniyor...</p></div></div>
+    </div>
+  </main>
+
+  <!-- QR GIRIS -->
+  <main class="sayfa" id="sayfa-qrGiris">
+    <div class="kart" style="margin-bottom:16px;">
+      <div class="kart-baslik">&#128247; Kamera ile QR Tara</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+        <video id="qr-video" style="display:none;width:100%;max-width:340px;border-radius:10px;border:2px solid #e2e8f0;" playsinline></video>
+        <p style="font-size:.84rem;color:#64748b;text-align:center;">Kamerayi acin ve personelin QR kodunu okutun.</p>
+        <div style="display:flex;gap:10px;">
+          <button id="qr-kamera-ac-btn" class="btn btn-birincil" onclick="App.qrKameraBaslat()">&#128247; Kamera Ac</button>
+          <button id="qr-kamera-kapat-btn" class="btn btn-gri" onclick="App.qrKameraKapat()" style="display:none;">Kapat</button>
+        </div>
+      </div>
+    </div>
+    <div class="kart">
+      <div class="kart-baslik">&#128101; Personel QR Kodlari</div>
+      <div id="qr-personel-liste" style="display:flex;flex-direction:column;gap:10px;"><p class="bos-mesaj">Yukleniyor...</p></div>
+    </div>
+  </main>
+
+  <!-- MANUEL GIRIS -->
+  <main class="sayfa" id="sayfa-giris">
+    <div class="gc-grid">
+      <div class="gc-kart giris-kart">
+        <div class="gc-baslik">&#128994; Personel Girisi</div>
+        <div class="form-grup"><label>Personel</label>
+          <select id="giris-personel-select" class="form-kontrol"><option value="">-- Secin --</option></select>
+        </div>
+        <div class="form-grup"><label>Not (opsiyonel)</label>
+          <textarea id="giris-notlar" class="form-kontrol" rows="2" placeholder="Gecikme sebebi vb..."></textarea>
+        </div>
+        <button class="btn btn-ikincil btn-blok btn-lg" onclick="App.girisYap()">Giris Kaydet</button>
+      </div>
+      <div class="gc-kart giris-kart">
+        <div class="gc-baslik">&#128145; Kart ile Giris</div>
+        <div class="form-grup"><label>Kart Numarasi</label>
+          <input type="text" id="giris-kart-no" class="form-kontrol" placeholder="Kart no girin veya okutun..."
+                 onkeydown="if(event.key==='Enter')App.kartIleGiris(this.value)"/>
+        </div>
+        <button class="btn btn-birincil btn-blok btn-lg"
+                onclick="App.kartIleGiris(document.getElementById('giris-kart-no').value)">Kart ile Giris</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- CIKIS -->
+  <main class="sayfa" id="sayfa-cikis">
+    <div class="gc-grid">
+      <div class="gc-kart cikis-kart">
+        <div class="gc-baslik">&#128308; Personel Cikisi</div>
+        <div class="form-grup"><label>Ofisteki Personel</label>
+          <select id="cikis-personel-select" class="form-kontrol"><option value="">-- Secin --</option></select>
+        </div>
+        <div class="form-grup"><label>Not (opsiyonel)</label>
+          <textarea id="cikis-notlar" class="form-kontrol" rows="2" placeholder="Erken cikis sebebi vb..."></textarea>
+        </div>
+        <button class="btn btn-tehlike btn-blok btn-lg" onclick="App.cikisYap()">Cikis Kaydet</button>
+      </div>
+      <div class="gc-kart cikis-kart">
+        <div class="gc-baslik">Bilgi</div>
+        <p style="font-size:.86rem;color:#64748b;line-height:1.7;">
+          Cikis yapabilmek icin ayni gun giris kaydi olmalidir.<br/>
+          Calisma suresi ve mesai otomatik hesaplanir.
+        </p>
+        <div style="margin-top:14px;padding:11px;background:#fff7ed;border-radius:8px;border-left:3px solid #f59e0b;">
+          <strong style="font-size:.82rem;color:#92400e;">Normal Mesai Bitis: 18:00</strong>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PERSONEL LISTESI -->
+  <main class="sayfa" id="sayfa-personelListesi">
+    <div class="arac-cubugu">
+      <div class="arama-kutu">
+        <span class="arama-ikon">&#128269;</span>
+        <input type="text" class="form-kontrol" placeholder="Ad, soyad, departman ara..."
+               oninput="App.personelListesi(this.value)" style="padding-left:34px;"/>
+      </div>
+      <button class="btn btn-birincil" onclick="App.personelEkleForm()">+ Yeni</button>
+    </div>
+    <div class="kart">
+      <div class="tablo-konteyner">
+        <table>
+          <thead><tr>
+            <th style="width:36px;"></th>
+            <th>Ad Soyad</th>
+            <th class="gizle-mobil">Departman</th>
+            <th class="gizle-mobil">Unvan</th>
+            <th>Kart</th>
+            <th id="th-maas" style="display:none;">Maas</th>
+            <th>Durum</th>
+            <th>Islem</th>
+          </tr></thead>
+          <tbody id="personel-tbody"><tr><td colspan="8" class="bos-mesaj">Yukleniyor...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- RAPORLAR -->
+  <main class="sayfa" id="sayfa-raporlar">
+    <div class="filtre-alani">
+      <div class="form-grup"><label>Baslangic</label><input type="date" id="rapor-baslangic" class="form-kontrol"/></div>
+      <div class="form-grup"><label>Bitis</label><input type="date" id="rapor-bitis" class="form-kontrol"/></div>
+      <div class="form-grup"><label>Departman</label>
+        <select id="rapor-departman" class="form-kontrol"><option value="">Tumu</option></select>
+      </div>
+      <div class="form-grup"><label>Tip</label>
+        <select id="rapor-tip" class="form-kontrol">
+          <option value="">Tumu</option><option value="giris">Giris</option><option value="cikis">Cikis</option>
+        </select>
+      </div>
+      <div class="form-grup" style="display:flex;gap:8px;align-items:flex-end;">
+        <button class="btn btn-birincil" onclick="App.raporFiltrele()">Filtrele</button>
+        <button class="btn btn-gri" onclick="App.raporCSV()">CSV</button>
+        <button class="btn btn-gri" onclick="App.raporYazdir()">Yazdir</button>
+      </div>
+    </div>
+    <div class="kart">
+      <div class="kart-baslik">Hareket Raporu
+        <span id="rapor-sayac" style="font-size:.76rem;font-weight:400;color:#64748b;margin-left:auto;"></span>
+      </div>
+      <div class="tablo-konteyner">
+        <table>
+          <thead><tr><th>Tarih</th><th>Saat</th><th>Ad Soyad</th><th class="gizle-mobil">Dept.</th><th>Tip</th><th class="gizle-mobil">Sure</th><th class="gizle-mobil">Not</th></tr></thead>
+          <tbody id="rapor-tbody"><tr><td colspan="7" class="bos-mesaj">Yukleniyor...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- MAAS YONETIMI -->
+  <main class="sayfa" id="sayfa-maasListesi">
+    <div class="arac-cubugu" style="flex-wrap:wrap;gap:10px;">
+      <h2 id="maas-ay-baslik" style="font-size:.95rem;font-weight:700;flex:1;"></h2>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <select id="maas-yil" class="form-kontrol" style="width:88px;" onchange="App._maasTabloGuncelle()">
+          <option value="2026">2026</option><option value="2025">2025</option>
+        </select>
+        <select id="maas-ay" class="form-kontrol" style="width:108px;" onchange="App._maasTabloGuncelle()">
+          <option value="1">Ocak</option><option value="2">Subat</option><option value="3">Mart</option>
+          <option value="4">Nisan</option><option value="5">Mayis</option><option value="6">Haziran</option>
+          <option value="7">Temmuz</option><option value="8">Agustos</option><option value="9">Eylul</option>
+          <option value="10">Ekim</option><option value="11">Kasim</option><option value="12">Aralik</option>
+        </select>
+        <button class="btn btn-birincil" onclick="App._maasTabloGuncelle()">Guncelle</button>
+      </div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));margin-bottom:16px;">
+      <div class="stat-kart"><div class="stat-ikon giris">&#128176;</div><div><div class="stat-deger" id="maas-toplam-odenecek" style="font-size:.95rem;margin-top:4px;">-</div><div class="stat-etiket">Toplam Odenecek</div></div></div>
+      <div class="stat-kart"><div class="stat-ikon cikis">&#128200;</div><div><div class="stat-deger" id="maas-toplam-avans" style="font-size:.95rem;margin-top:4px;">-</div><div class="stat-etiket">Toplam Avans</div></div></div>
+    </div>
+    <div class="kart">
+      <div class="tablo-konteyner">
+        <table>
+          <thead><tr>
+            <th>Personel</th>
+            <th class="gizle-mobil">Dept.</th>
+            <th>Gun</th>
+            <th class="gizle-mobil">Saat</th>
+            <th class="gizle-mobil">Mesai</th>
+            <th>Temel</th>
+            <th class="gizle-mobil">Mesai Ucreti</th>
+            <th class="gizle-mobil">Avans</th>
+            <th>Net</th>
+            <th>Islem</th>
+          </tr></thead>
+          <tbody id="maas-tbody"><tr><td colspan="10" class="bos-mesaj">Yukleniyor...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+</div><!-- /icerik-alani -->
+
+
+<!-- ==================== MODALLER ==================== -->
+
+<!-- YONETICI GIRIS -->
+<div class="modal-arka" id="modal-yonetici-giris">
+  <div class="modal-kutu" style="max-width:360px;">
+    <div class="modal-header">
+      <h3 class="modal-baslik">&#128274; Yonetici Girisi</h3>
+      <button class="modal-kapat" onclick="App.modalKapat('modal-yonetici-giris')">&#10005;</button>
+    </div>
+    <div class="modal-govde">
+      <div class="form-grup"><label>Kullanici Adi</label>
+        <input type="text" id="yon-kullanici" class="form-kontrol" placeholder="yonetici"
+               onkeydown="if(event.key==='Enter')App.yoneticiGirisYap()"/>
+      </div>
+      <div class="form-grup"><label>Sifre</label>
+        <input type="password" id="yon-sifre" class="form-kontrol" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter')App.yoneticiGirisYap()"/>
+      </div>
+      <p style="font-size:.74rem;color:#94a3b8;margin-top:4px;">Varsayilan: yonetici / Admin123</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gri" onclick="App.modalKapat('modal-yonetici-giris')">Iptal</button>
+      <button class="btn btn-birincil" onclick="App.yoneticiGirisYap()">Giris Yap</button>
+    </div>
+  </div>
+</div>
+
+<!-- PERSONEL EKLE/DUZENLE -->
+<div class="modal-arka" id="modal-personel">
+  <div class="modal-kutu">
+    <div class="modal-header">
+      <h3 class="modal-baslik" id="personel-modal-baslik">Yeni Personel Ekle</h3>
+      <button class="modal-kapat" onclick="App.modalKapat('modal-personel')">&#10005;</button>
+    </div>
+    <div class="modal-govde">
+      <form id="personel-form" onsubmit="return false;">
+        <div class="form-grid-2">
+          <div class="form-grup"><label>Ad *</label><input type="text" name="ad" class="form-kontrol" required placeholder="Ahmet"/></div>
+          <div class="form-grup"><label>Soyad *</label><input type="text" name="soyad" class="form-kontrol" required placeholder="Yilmaz"/></div>
+          <div class="form-grup"><label>Departman</label><input type="text" name="departman" class="form-kontrol" placeholder="BT"/></div>
+          <div class="form-grup"><label>Unvan</label><input type="text" name="unvan" class="form-kontrol" placeholder="Uzman"/></div>
+          <div class="form-grup"><label>E-posta</label><input type="email" name="email" class="form-kontrol"/></div>
+          <div class="form-grup"><label>Telefon</label><input type="tel" name="telefon" class="form-kontrol"/></div>
+          <div class="form-grup"><label>Kart No</label><input type="text" name="kartNo" class="form-kontrol" placeholder="1001"/></div>
+          <div class="form-grup" id="maas-form-grup" style="display:none;">
+            <label>Aylik Maas (TL)</label>
+            <input type="number" name="maas" class="form-kontrol" placeholder="25000" min="0" step="100"/>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gri" onclick="App.modalKapat('modal-personel')">Iptal</button>
+      <button class="btn btn-birincil" onclick="App.personelKaydet()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR KOD -->
+<div class="modal-arka" id="modal-qr">
+  <div class="modal-kutu" style="max-width:320px;text-align:center;">
+    <div class="modal-header">
+      <h3 class="modal-baslik">QR Kod</h3>
+      <button class="modal-kapat" onclick="App.modalKapat('modal-qr')">&#10005;</button>
+    </div>
+    <div class="modal-govde" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div id="qr-canvas-modal" style="padding:12px;background:#fff;border-radius:10px;border:2px solid #e2e8f0;"></div>
+      <div>
+        <div id="qr-modal-isim" style="font-weight:700;font-size:.95rem;"></div>
+        <div id="qr-modal-departman" style="font-size:.8rem;color:#64748b;"></div>
+      </div>
+      <p style="font-size:.76rem;color:#94a3b8;">Personel bu QR kodu kaydedip giris yapabilir.</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-gri" onclick="App.modalKapat('modal-qr')">Kapat</button>
+      <button class="btn btn-birincil" id="qr-modal-indir">PNG Indir</button>
+    </div>
+  </div>
+</div>
+
+<!-- AVANS EKLE -->
+<div class="modal-arka" id="modal-avans">
+  <div class="modal-kutu" style="max-width:380px;">
+    <div class="modal-header">
+      <h3 class="modal-baslik">Avans Ekle</h3>
+      <button class="modal-kapat" onclick="App.modalKapat('modal-avans')">&#10005;</button>
+    </div>
+    <div class="modal-govde">
+      <input type="hidden" id="avans-personel-id"/>
+      <p style="font-weight:700;margin-bottom:14px;color:#1e293b;" id="avans-personel-ad"></p>
+      <div class="form-grup"><label>Avans Tutari (TL)</label>
+        <input type="number" id="avans-tutar" class="form-kontrol" placeholder="0.00" min="1" step="0.01"/>
+      </div>
+      <div class="form-grup"><label>Aciklama</label>
+        <input type="text" id="avans-notlar" class="form-kontrol" placeholder="Avans nedeni..."/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gri" onclick="App.modalKapat('modal-avans')">Iptal</button>
+      <button class="btn btn-birincil" onclick="App.avansKaydet()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAAS DETAY -->
+<div class="modal-arka" id="modal-maas-detay">
+  <div class="modal-kutu" style="max-width:640px;">
+    <div class="modal-header">
+      <h3 class="modal-baslik">Maas Detayi</h3>
+      <button class="modal-kapat" onclick="App.modalKapat('modal-maas-detay')">&#10005;</button>
+    </div>
+    <div class="modal-govde">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #e2e8f0;">
+        <div class="kart-avatar" style="width:46px;height:46px;font-size:.95rem;" id="mdetay-avatar">AA</div>
+        <div>
+          <div id="mdetay-isim" style="font-size:.95rem;font-weight:700;"></div>
+          <div id="mdetay-departman" style="font-size:.8rem;color:#64748b;"></div>
+          <div id="mdetay-ay" style="font-size:.8rem;color:#2563eb;font-weight:600;"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div class="maas-ozet-satir"><span>Brut Maas</span><strong id="mdetay-maas"></strong></div>
+        <div class="maas-ozet-satir"><span>Calisma Gunu</span><strong id="mdetay-gunler"></strong></div>
+        <div class="maas-ozet-satir"><span>Toplam Saat</span><strong id="mdetay-saat"></strong></div>
+        <div class="maas-ozet-satir"><span>Mesai Saati</span><strong id="mdetay-mesai" style="color:#f59e0b;"></strong></div>
+        <div class="maas-ozet-satir"><span>Temel Ucret</span><strong id="mdetay-temel"></strong></div>
+        <div class="maas-ozet-satir"><span>Mesai Ucreti</span><strong id="mdetay-mesai-ucret" style="color:#10b981;"></strong></div>
+        <div class="maas-ozet-satir"><span>Toplam Avans</span><strong id="mdetay-avans" style="color:#ef4444;"></strong></div>
+        <div class="maas-ozet-satir" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:8px;padding:10px 12px;">
+          <span style="font-weight:700;">NET ODENECEK</span>
+          <strong id="mdetay-net" style="font-size:1.05rem;color:#2563eb;"></strong>
+        </div>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:9px 12px;font-size:.78rem;color:#64748b;margin-bottom:12px;border-left:3px solid #2563eb;">
+        Formul: (Maas / 26) x Calisma Gunu + Mesai Ucreti - Avans
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:.8rem;font-weight:700;margin-bottom:6px;">Avanslar</div>
+        <div id="mdetay-avans-liste"></div>
+      </div>
+      <div style="font-size:.8rem;font-weight:700;margin-bottom:6px;">Gunluk Calisma</div>
+      <div class="tablo-konteyner" style="max-height:200px;overflow-y:auto;">
+        <table>
+          <thead><tr><th>Tarih</th><th>Giris</th><th>Cikis</th><th>Sure</th><th>Mesai</th></tr></thead>
+          <tbody id="mdetay-gun-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gri" onclick="App.modalKapat('modal-maas-detay')">Kapat</button>
+      <button class="btn btn-birincil" id="mdetay-pdf-btn">PDF Indir</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- SCRIPTS -->
+<script src="/js/storage.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/personel.js"></script>
+<script src="/js/log.js"></script>
+<script src="/js/maas.js"></script>
+<script src="/js/qr.js"></script>
+<script src="/js/app.js"></script>
+
+<script>
+  /* Sidebar */
+  function acSidebar() {
+    document.getElementById('sidebar').classList.add('acik');
+    document.getElementById('sidebar-overlay').classList.add('aktif');
+    document.body.style.overflow = 'hidden';
+  }
+  function kapatSidebar() {
+    document.getElementById('sidebar').classList.remove('acik');
+    document.getElementById('sidebar-overlay').classList.remove('aktif');
+    document.body.style.overflow = '';
+  }
+
+  /* Rapor tarihleri */
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      App.departmanSelectDoldur('#rapor-departman');
+      var bugun = new Date().toISOString().split('T')[0];
+      var bas = document.getElementById('rapor-baslangic');
+      var bit = document.getElementById('rapor-bitis');
+      if (bas) bas.value = bugun;
+      if (bit) bit.value = bugun;
+    }, 800);
+  });
+
+  /* Service Worker kaydı */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/pwa/sw.js', { scope: '/' })
+        .then(function(reg) {
+          console.log('SW kayitli:', reg.scope);
+          /* Cache guncelle */
+          if (reg.active) {
+            reg.active.postMessage({ tip: 'CACHE_GUNCELLE' });
+          }
+        })
+        .catch(function(err) { console.warn('SW hatasi:', err); });
+    });
+  }
+</script>
+</body>
+</html>
