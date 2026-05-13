@@ -565,17 +565,17 @@ td.tur-cikis { color: #dc3545; font-weight: bold; }
     </footer>
 </div>
 
-<script src="js/firebase-config.js"></script>
-<script src="js/senkron.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/personel.js"></script>
-<script src="js/log.js"></script>
-<script src="js/avans.js"></script>
-<script src="js/aylik-kapan.js"></script>
-<script src="js/qr.js"></script>
-<script src="js/maas.js"></script>
-<script src="js/app.js"></script>
+
+
+
+
+
+
+
+
+
+
+
 
 <script>
 (function() {
@@ -888,6 +888,397 @@ td.tur-cikis { color: #dc3545; font-weight: bold; }
         fillRaporPersonelSelect();
     });
 })();
+</script>
+<script>
+/* storage.js */
+window.StorageHelper = (function() {
+    function save(key, value) {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+            if (window.Senkron && window.Senkron.isOnline()) window.Senkron.yaz(key, value);
+            return true;
+        } catch(e) { console.error(e); return false; }
+    }
+    function load(key, defaultValue) {
+        try {
+            var raw = localStorage.getItem(key);
+            if (!raw) return defaultValue;
+            return JSON.parse(raw);
+        } catch(e) { return defaultValue; }
+    }
+    return { save: save, load: load };
+})();
+
+`n/* auth.js */
+window.Auth = (function() {
+    var SIFRE_KEY = "ofisXAdminSifre";
+    var SIFRE_DEFAULT = "1234";
+    function sifreGet() { return localStorage.getItem(SIFRE_KEY) || SIFRE_DEFAULT; }
+    function sifreKontrol(input) { return input === sifreGet(); }
+    function sifreDegistirYeni() {
+        var yeni = prompt("Yeni sifre:");
+        if (!yeni || yeni.length < 2) { alert("Gecersiz sifre!"); return; }
+        localStorage.setItem(SIFRE_KEY, yeni);
+        alert("Sifre degistildi: " + yeni);
+    }
+    function sifreIste(callback) {
+        var girilen = prompt("Sifre girin:");
+        if (sifreKontrol(girilen)) callback();
+        else alert("Yanlis sifre!");
+    }
+    return { sifreDegistir: sifreDegistirYeni, sifreIste: sifreIste, sifreKontrol: sifreKontrol };
+})();
+
+`n/* personel.js */
+(function() {
+    var KEY = "personelList";
+    function getAll() { return window.StorageHelper.load(KEY, []); }
+    function getByKod(kod) { return getAll().find(function(p) { return p.kod === kod; }); }
+    function ekle(kod, ad, dep, maas, tel) {
+        var list = getAll();
+        if (getByKod(kod)) { alert("Bu kod zaten var!"); return false; }
+        list.push({ id: Date.now(), kod: kod, adSoyad: ad, departman: dep, aktif: true, maas: maas, tel: tel });
+        window.StorageHelper.save(KEY, list);
+        renderPersonelTable();
+        return true;
+    }
+    function sil(id) {
+        if (!confirm("Silinsin mi?")) return;
+        var list = getAll().filter(function(p) { return p.id !== id; });
+        window.StorageHelper.save(KEY, list);
+        renderPersonelTable();
+    }
+    function toggle(id) {
+        var list = getAll();
+        var p = list.find(function(p) { return p.id === id; });
+        if (p) { p.aktif = !p.aktif; window.StorageHelper.save(KEY, list); renderPersonelTable(); }
+    }
+    function renderPersonelTable() {
+        var tbody = document.querySelector("#personelTable tbody");
+        if (!tbody) return;
+        var list = getAll();
+        tbody.innerHTML = "";
+        if (!list.length) { tbody.innerHTML = "<tr><td colspan='8'>Henuz personel yok</td></tr>"; return; }
+        list.forEach(function(p) {
+            var tr = document.createElement("tr");
+            tr.innerHTML = "<td>" + p.kod + "</td><td>" + p.adSoyad + "</td><td>" + (p.departman||"-") + "</td>" +
+                "<td style='color:" + (p.aktif?"green":"red") + ";'>" + (p.aktif?"Aktif","Pasif") + "</td>" +
+                "<td>" + p.maas + "</td><td>" + (p.tel||"-") + "</td><td>-</td>" +
+                "<td><button class='btn btn-sm btn-danger' onclick='window.PersonelModule.sil(" + p.id + ")'>Sil</button> " +
+                "<button class='btn btn-sm' onclick='window.PersonelModule.toggle(" + p.id + ")'>" + (p.aktif?"Pasif","Aktif") + "</button></td>";
+            tbody.appendChild(tr);
+        });
+    }
+    function yenPersonel() {
+        var kod = prompt("Personel kodu:");
+        if (!kod) return;
+        var ad = prompt("Ad soyad:");
+        if (!ad) return;
+        var dep = prompt("Departman:") || "-";
+        var maas = prompt("Aylik maas (TL):") || "0";
+        var tel = prompt("Telefon:") || "-";
+        ekle(kod, ad, dep, maas, tel);
+    }
+    window.PersonelModule = { getAll: getAll, getByKod: getByKod, ekle: ekle, sil: sil, toggle: toggle, renderTable: renderPersonelTable };
+    window.getPersonelList = getAll;
+    window.findPersonelByKod = getByKod;
+    window.refreshPersonelSelectleri = function() { renderPersonelTable(); };
+    var btn = document.getElementById("btnYeniPersonel");
+    if (btn) btn.addEventListener("click", yenPersonel);
+    window.addEventListener("load", renderPersonelTable);
+})();
+
+`n/* log.js */
+(function() {
+    var KEY = "logList";
+    function getAll() { return window.StorageHelper.load(KEY, []); }
+    function ekle(kod, tip) {
+        var p = window.findPersonelByKod(kod);
+        if (!p) return;
+        var now = new Date();
+        var entry = {
+            id: Date.now(), tarih: now.toLocaleDateString("tr-TR"),
+            saat: now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+            personelKod: kod, personelAd: p.adSoyad, tip: tip
+        };
+        var list = getAll();
+        list.push(entry);
+        window.StorageHelper.save(KEY, list);
+        renderLogTable();
+    }
+    function renderLogTable() {
+        var tbody = document.querySelector("#logTable tbody");
+        if (!tbody) return;
+        var list = getAll();
+        list.sort(function(a,b) { return b.id - a.id; });
+        tbody.innerHTML = "";
+        if (!list.length) { tbody.innerHTML = "<tr><td colspan='5'>Henuz kayit yok</td></tr>"; return; }
+        list.slice(0,50).forEach(function(e) {
+            var tr = document.createElement("tr");
+            tr.innerHTML = "<td>" + e.tarih + "</td><td>" + e.personelAd + "</td>" +
+                "<td style='color:#198754;'>" + (e.tip === "Giris" ? e.saat : "-") + "</td>" +
+                "<td style='color:#dc3545;'>" + (e.tip === "Cikis" ? e.saat : "-") + "</td>" +
+                "<td>-</td>";
+            tbody.appendChild(tr);
+        });
+    }
+    function filterByDate(tarih) {
+        if (!tarih) return renderLogTable();
+        var list = getAll().filter(function(e) { return e.tarih === tarih; });
+        var tbody = document.querySelector("#logTable tbody");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        list.forEach(function(e) {
+            var tr = document.createElement("tr");
+            tr.innerHTML = "<td>" + e.tarih + "</td><td>" + e.personelAd + "</td><td>" + e.saat + "</td><td>" + e.tip + "</td><td>-</td>";
+            tbody.appendChild(tr);
+        });
+    }
+    window.LogModule = { ekle: ekle, getAll: getAll };
+    window.addLogEntry = ekle;
+    window.filterLogByDate = filterByDate;
+    window.logTabAcildi = renderLogTable;
+    window.addEventListener("load", renderLogTable);
+})();
+
+`n/* avans.js */
+(function() {
+    var KEY = "avansList";
+    function getAll() { return window.StorageHelper.load(KEY, []); }
+    function ekle(kod, ad, miktar, aciklama) {
+        var list = getAll();
+        list.push({ id: Date.now(), tarih: new Date().toLocaleDateString("tr-TR"), personelKod: kod, personelAd: ad, miktar: miktar, aciklama: aciklama, odendi: false });
+        window.StorageHelper.save(KEY, list);
+    }
+    function odendi(id) {
+        var list = getAll();
+        var a = list.find(function(x) { return x.id === id; });
+        if (a) { a.odendi = true; window.StorageHelper.save(KEY, list); }
+    }
+    function sil(id) {
+        var list = getAll().filter(function(x) { return x.id !== id; });
+        window.StorageHelper.save(KEY, list);
+    }
+    function getBekleyen(kod) {
+        return getAll().filter(function(a) { return a.personelKod === kod && !a.odendi; });
+    }
+    window.AvansModule = { getAll: getAll, ekle: ekle, odendi: odendi, sil: sil, getBekleyen: getBekleyen };
+})();
+
+`n/* aylik-kapan.js */
+(function() {
+    var KEY = "aylikKapanList";
+    function getAll() { return window.StorageHelper.load(KEY, []); }
+    function kapan(id) {
+        var list = getAll();
+        list.push({ id: id, tarih: new Date().toLocaleDateString("tr-TR"), saat: new Date().toLocaleTimeString("tr-TR") });
+        window.StorageHelper.save(KEY, list);
+    }
+    window.AylikKapanModule = { getAll: getAll, kapan: kapan };
+})();
+
+`n/* qr.js */
+(function() {
+    var video, canvas, stream;
+    function start() {
+        video = document.getElementById("qrVideo");
+        if (!video) return;
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(s) {
+            stream = s; video.srcObject = s;
+        }).catch(function(e) { alert("Kamera bulunamadi: " + e.message); });
+    }
+    function dur() {
+        if (stream) stream.getTracks().forEach(function(t) { t.stop(); });
+    }
+    window.startQrScanner = start;
+})();
+
+`n/* maas.js */
+(function() {
+    var ODEME_KEY = "maasOdemeList";
+    var personelSelect = document.getElementById("maasPersonelSelect");
+    var SELECTOR = null;
+    function getOdemeList() { return window.StorageHelper.load(ODEME_KEY, []); }
+    function personelDoldur() {
+        if (!personelSelect) return;
+        var list = window.getPersonelList ? window.getPersonelList() : [];
+        while (personelSelect.options.length > 1) personelSelect.remove(1);
+        list.forEach(function(p) {
+            var o = document.createElement("option");
+            o.value = p.kod; o.textContent = p.adSoyad + " (" + p.kod + ")";
+            personelSelect.appendChild(o);
+        });
+    }
+    function MaasHesapla() {
+        if (!SELECTOR) return;
+        var p = window.findPersonelByKod(SELECTOR);
+        if (!p) return;
+        var donem = document.getElementById("maasDonemSelect") ? document.getElementById("maasDonemSelect").value : new Date().toLocaleString("tr-TR", { month: "long", year: "numeric" });
+        var logList = window.StorageHelper.load("logList", []);
+        var girisler = logList.filter(function(e) { return e.personelKod === p.kod && e.tip === "Giris"; }).length;
+        var avans = window.AvansModule ? window.AvansModule.getBekleyen(p.kod) : [];
+        var toplamAvans = avans.reduce(function(s, a) { return s + a.miktar; }, 0);
+        var maas = parseFloat(p.maas || 0);
+        var sonuc = maas + toplamAvans;
+        var card = document.getElementById("maasSonucCard");
+        var div = document.getElementById("maasSonuc");
+        if (card && div) {
+            card.style.display = "block";
+            div.innerHTML = "<p><strong>Personel:</strong> " + p.adSoyad + "</p><p><strong>Donem:</strong> " + donem + "</p><p><strong>Calisilan Gun:</strong> " + girisler + "</p><p><strong>Avans:</strong> " + toplamAvans.toFixed(2) + " TL</p><p style='font-size:1.3rem;color:#198754;'><strong>Odenecek:</strong> " + sonuc.toFixed(2) + " TL</p>";
+        }
+        var btn = document.getElementById("btnOdemeYap");
+        if (btn) { btn.style.display = "inline-block"; btn.onclick = function() { MaasOdemeYap(p, donem, girisler, toplamAvans, sonuc); }; }
+    }
+    function MaasOdemeYap(p, donem, gun, avans, net) {
+        var list = getOdemeList();
+        var existing = list.find(function(o) { return o.personelKod === p.kod && o.donem === donem; });
+        if (existing) { alert("Bu donem icin odeiis yapilmis!"); return; }
+        list.push({ id: Date.now(), personelKod: p.kod, personelAd: p.adSoyad, donem: donem, calisilanGun: gun, avans: avans, netOdenecek: net, odemeTarih: new Date().toLocaleDateString("tr-TR"), odemeSaat: new Date().toLocaleTimeString("tr-TR") });
+        window.StorageHelper.save(ODEME_KEY, list);
+        alert("Odeme kaydedildi!");
+        if (window.AvansModule) {
+            window.AvansModule.getAll().filter(function(a) { return a.personelKod === p.kod && !a.odendi; }).forEach(function(a) { window.AvansModule.odendi(a.id); });
+        }
+    }
+    window.maasTabAcildi = function() { personelDoldur(); };
+    window.getOdemeList = getOdemeList;
+    window.maasOdemeYap = MaasOdemeYap;
+    if (personelSelect) {
+        personelSelect.addEventListener("change", function() { SELECTOR = personelSelect.value; if (SELECTOR) MaasHesapla(); });
+    }
+    var btn = document.getElementById("btnMaasHesapla");
+    if (btn) btn.addEventListener("click", MaasHesapla);
+})();
+
+`n/* app.js */
+(function() {
+    var currentModeLabel = document.getElementById("currentModeLabel");
+    var btnSwitchMode = document.getElementById("btnSwitchMode");
+    var personelScreen = document.getElementById("personelScreen");
+    var adminScreen = document.getElementById("adminScreen");
+    var clockEl = document.getElementById("clock");
+    var statusText = document.getElementById("statusText");
+    var tabButtons = document.querySelectorAll(".tab-btn");
+    var tabs = document.querySelectorAll(".tab");
+    var btnStartQr = document.getElementById("btnStartQr");
+    var personelKodInput = document.getElementById("personelKodInput");
+    var btnGiris = document.getElementById("btnGiris");
+    var btnCikis = document.getElementById("btnCikis");
+    var lastAction = document.getElementById("lastAction");
+
+    function updateClock() {
+        if (clockEl) clockEl.textContent = new Date().toLocaleString("tr-TR");
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function applyMode(m) {
+        if (m === "personel") {
+            personelScreen.classList.remove("hidden");
+            adminScreen.classList.add("hidden");
+            currentModeLabel.textContent = "Mod: Personel";
+            btnSwitchMode.textContent = "Yonetici Girisi";
+        } else {
+            personelScreen.classList.add("hidden");
+            adminScreen.classList.remove("hidden");
+            currentModeLabel.textContent = "Mod: Yonetici";
+            btnSwitchMode.textContent = "Personel Ekrani";
+            if (window.refreshPersonelSelectleri) window.refreshPersonelSelectleri();
+        }
+    }
+
+    if (btnSwitchMode) {
+        btnSwitchMode.addEventListener("click", function() {
+            if (adminScreen.classList.contains("hidden")) {
+                if (window.Auth) {
+                    window.Auth.sifreIste(function() { applyMode("admin"); setStatus("Yonetici paneline giris yapildi."); });
+                } else { applyMode("admin"); }
+            } else {
+                applyMode("personel");
+                setStatus("Personel moduna donuldu.");
+            }
+        });
+    }
+
+    tabButtons.forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            var target = btn.getAttribute("data-tab");
+            tabButtons.forEach(function(b) { b.classList.remove("active"); });
+            tabs.forEach(function(t) { t.classList.remove("active"); });
+            btn.classList.add("active");
+            var tabEl = document.getElementById(target);
+            if (tabEl) tabEl.classList.add("active");
+            if (target === "maasTab" && window.maasTabAcildi) window.maasTabAcildi();
+            if (target === "avansTab" && window.renderAvansTable) window.renderAvansTable();
+            if (target === "raporTab" && window.raporTabAcildi) window.raporTabAcildi();
+        });
+    });
+
+    function setStatus(msg) { if (statusText) statusText.textContent = msg; }
+
+    window.personelIslemYap = function(kod, zorluTip) {
+        kod = (kod || "").trim().toUpperCase();
+        if (!kod) { alert("Lutfen personel kodu girin."); return; }
+        var p = window.findPersonelByKod ? window.findPersonelByKod(kod) : null;
+        if (!p) { alert("YANLIS KOD: " + kod); return; }
+        if (!p.aktif) { alert(p.adSoyad + " pasif durumdadir."); return; }
+
+        var tip;
+        if (zorluTip) tip = zorluTip;
+        else {
+            var logList = window.StorageHelper ? window.StorageHelper.load("logList", []) : [];
+            var sonHareket = logList.slice().reverse().find(function(l) { return l.personelKod === kod; });
+            tip = (!sonHareket || sonHareket.tip === "Cikis") ? "Giris" : "Cikis";
+        }
+        var time = new Date().toLocaleTimeString("tr-TR");
+        var isaret = tip === "Giris" ? "[GIRIS]" : "[CIKIS]";
+
+        if (lastAction) {
+            lastAction.innerHTML = "<strong>" + isaret + "</strong> - " + p.adSoyad + " (" + kod + ") - " + time;
+            lastAction.style.color = tip === "Giris" ? "#198754" : "#dc3545";
+        }
+        if (window.addLogEntry) window.addLogEntry(kod, tip);
+        setStatus(p.adSoyad + " - " + tip + " kaydedildi.");
+        if (personelKodInput) { personelKodInput.value = ""; personelKodInput.focus(); }
+    };
+
+    if (btnGiris) {
+        btnGiris.addEventListener("click", function() {
+            window.personelIslemYap(personelKodInput ? personelKodInput.value : "", "Giris");
+        });
+    }
+    if (btnCikis) {
+        btnCikis.addEventListener("click", function() {
+            window.personelIslemYap(personelKodInput ? personelKodInput.value : "", "Cikis");
+        });
+    }
+    if (personelKodInput) {
+        personelKodInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") window.personelIslemYap(personelKodInput.value);
+        });
+    }
+
+    if (btnStartQr) {
+        btnStartQr.addEventListener("click", function() {
+            if (window.startQrScanner) window.startQrScanner();
+        });
+    }
+
+    var btnSifreDegistir = document.getElementById("btnSifreDegistir");
+    if (btnSifreDegistir) {
+        btnSifreDegistir.addEventListener("click", function() {
+            if (window.Auth) window.Auth.sifreDegistir();
+        });
+    }
+
+    window.addEventListener("load", function() {
+        applyMode("personel");
+        if (personelKodInput) personelKodInput.focus();
+        setStatus("Sistem hazir.");
+    });
+})();
+
+
 </script>
 </body>
 </html>
