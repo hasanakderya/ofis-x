@@ -6,8 +6,359 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <meta name="theme-color" content="#0d6efd">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+/* GENEL AYARLAR */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #222;
+}
+
+/* UYGULAMA KAPSAYICI */
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ÜST BAR */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0d6efd;
+    color: #fff;
+    padding: 0.75rem 1rem;
+}
+
+.top-bar h1 {
+    font-size: 1.2rem;
+}
+
+.top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* ANA İÇERİK */
+.main-container {
+    flex: 1;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.screen {
+    display: block;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* PERSONEL EKRANI */
+#personelScreen h2,
+#adminScreen h2 {
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+    margin-bottom: 0.75rem;
+}
+
+.qr-video {
+    width: 100%;
+    max-height: 300px;
+    background: #000;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+}
+
+/* FORM ÖĞELERİ */
+.input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 2px rgba(13,110,253,0.25);
+}
+
+/* BUTONLAR */
+.btn {
+    display: inline-block;
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    background: #e0e0e0;
+    color: #222;
+    transition: background 0.15s, transform 0.05s;
+}
+
+.btn:hover {
+    background: #d0d0d0;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+/* RENKLİ BUTONLAR */
+.btn-primary {
+    background: #0d6efd;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #0b5ed7;
+}
+
+.btn-success {
+    background: #198754;
+    color: #fff;
+}
+
+.btn-success:hover {
+    background: #157347;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #bb2d3b;
+}
+
+/* BUTON GRUBU */
+.btn-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* BİLGİ METİNLERİ */
+.info-text {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* YÖNETİCİ PANELİ */
+.admin-menu {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.tab-btn.active {
+    background: #0d6efd;
+    color: #fff;
+}
+
+.admin-content {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* TABLAR */
+.tab {
+    display: none;
+}
+
+.tab.active {
+    display: block;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.table th {
+    background: #f1f1f1;
+}
+
+/* ALT BAR */
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f1f1f1;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    color: #555;
+}
+/* AKTİF PERSONEL LİSTESİ */
+.info-list {
+    list-style: none;
+    margin-top: 0.5rem;
+}
+
+.info-list li {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+.info-list li:last-child {
+    border-bottom: none;
+}
+
+/* RAPOR KARTLARI */
+.rapor-kart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #0d6efd;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    cursor: pointer;
+}
+
+.rapor-kart:hover {
+    background: #e7f1ff;
+    border-color: #0d6efd;
+    transform: translateY(-2px);
+}
+
+/* MAAŞ SONUÇ */
+#maasSonuc {
+    line-height: 2;
+    font-size: 0.95rem;
+}
+
+/* LOG TABLO - Giriş/Çıkış renk */
+td.tur-giris { color: #198754; font-weight: bold; }
+td.tur-cikis { color: #dc3545; font-weight: bold; }
+
+/* Scrollable tablo */
+.table-wrap {
+    overflow-x: auto;
+}
+
+/* Buton warning */
+.btn-warning {
+    background: #ffc107;
+    color: #212529;
+}
+.btn-warning:hover {
+    background: #ffca2c;
+}
+
+</style>
+    <style>
+/* Küçük ekran genel ayarları (telefon) */
+@media (max-width: 599px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .main-container {
+        padding: 0.5rem;
+    }
+
+    .card {
+        padding: 0.75rem;
+    }
+
+    .btn,
+    .input {
+        font-size: 1rem;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+}
+
+/* Tablet dikey / yatay (genel) */
+@media (min-width: 600px) and (max-width: 1024px) {
+    body {
+        font-size: 16px;
+    }
+
+    .main-container {
+        max-width: 900px;
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+
+    .btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 1rem;
+    }
+
+    .input {
+        padding: 0.7rem 0.9rem;
+    }
+
+    .qr-video {
+        max-height: 350px;
+    }
+}
+
+/* Geniş ekran (PC) */
+@media (min-width: 1025px) {
+    .main-container {
+        padding: 1.5rem;
+    }
+}
+
+</style>
     <style>
         #btnOdemeYap { display:none; padding:.6rem 1.4rem; border-radius:8px; border:none; cursor:pointer; font-size:1rem; font-weight:bold; margin-top:.5rem; }
         .rapor-filtre { display:flex; gap:.75rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem; }
