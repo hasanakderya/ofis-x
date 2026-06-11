@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Operasyonel Takip Paneli",
+  "description": "Personel giriş-çıkış zamanlarını, çalışılan firmaları ve net mesai sürelerini Gün-Saat bazında otomatik raporlayan operasyonel yönetim paneli.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

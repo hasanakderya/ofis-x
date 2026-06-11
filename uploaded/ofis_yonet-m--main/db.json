@@ -1,0 +1,214 @@
+{
+  "firms": [
+    {
+      "id": "firm-1",
+      "name": "Esas Mimarlık Ofisi",
+      "sector": "Mimarlık & Tasarım",
+      "manager": "Kamil Sönmez",
+      "phone": "0532 111 22 33",
+      "address": "Maslak Mahallesi, Sanayi Caddesi No:4, Şişli, İstanbul",
+      "createdAt": "2026-05-15T10:00:00Z"
+    },
+    {
+      "id": "firm-2",
+      "name": "Artı Maket Tasarım Atölyesi",
+      "sector": "Fiziksel Maket & Model Yapımı",
+      "manager": "Aylin Kahraman",
+      "phone": "0505 555 44 22",
+      "address": "Liman Caddesi, Merkez, İstanbul",
+      "createdAt": "2026-05-16T11:30:00Z"
+    },
+    {
+      "id": "firm-3",
+      "name": "Piksel Tasarım Stüdyosu",
+      "sector": "3D Görselleştirme & Animasyon",
+      "manager": "Hakan Güneş",
+      "phone": "0543 999 88 11",
+      "address": "Teknopark İzmir, A3 Blok No:12, Urla, İzmir",
+      "createdAt": "2026-05-17T09:15:00Z"
+    }
+  ],
+  "personnel": [
+    {
+      "id": "pers-1",
+      "idCardNo": "12345678901",
+      "fullName": "Ahmet Erdem",
+      "role": "Model Maker (Maket Uzmanı)",
+      "phone": "0555 444 33 22",
+      "startDate": "2024-03-10",
+      "createdAt": "2026-05-15T10:15:00Z",
+      "aylik_maas_try": 50000,
+      "mesai_saat_ucreti_try": 500
+    },
+    {
+      "id": "pers-2",
+      "idCardNo": "98765432109",
+      "fullName": "Selin Uzun",
+      "role": "CAD Tasarımcısı",
+      "phone": "0531 666 77 88",
+      "startDate": "2025-05-01",
+      "createdAt": "2026-05-17T09:30:00Z",
+      "aylik_maas_try": 65000,
+      "mesai_saat_ucreti_try": 600
+    },
+    {
+      "id": "pers-3",
+      "idCardNo": "45678912344",
+      "fullName": "Ömer Faruk Sarı",
+      "role": "3D Render Uzmanı",
+      "phone": "0544 333 22 11",
+      "startDate": "2025-11-20",
+      "createdAt": "2026-05-16T11:45:00Z",
+      "aylik_maas_try": 42000,
+      "mesai_saat_ucreti_try": 450
+    }
+  ],
+  "records": [
+    {
+      "id": "rec-1",
+      "personnelId": "pers-1",
+      "firmId": "firm-1",
+      "checkIn": "2026-05-20T08:00",
+      "checkOut": "2026-05-21T18:00",
+      "note": "Mimari maket lamine montajı ve 3D render incelemesi tamamlandı.",
+      "createdAt": "2026-05-21T18:05:00Z"
+    },
+    {
+      "id": "rec-2",
+      "personnelId": "pers-3",
+      "firmId": "firm-2",
+      "checkIn": "2026-05-22T04:30",
+      "checkOut": "2026-05-22T13:07",
+      "note": "Peyzaj maketi malzeme seçimi ve lazer kesimi yapıldı.",
+      "createdAt": "2026-05-22T04:32:00Z"
+    },
+    {
+      "id": "rec-3",
+      "personnelId": "pers-2",
+      "firmId": "firm-3",
+      "checkIn": "2026-05-22T09:00",
+      "checkOut": "2026-05-22T17:30",
+      "note": "CAD planlarının ölçeklendirilmesi ve lazer kesim şablonlarının hazırlanması tamamlandı.",
+      "createdAt": "2026-05-22T17:30:00Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "tx-1",
+      "date": "2026-05-18",
+      "type": "INCOME",
+      "amount": 4500,
+      "currency": "GBP",
+      "description": "Esas Mimarlık Ofisi - Mayıs 1. Dönem Proje Hakediş Ödemesi",
+      "category": "Hakediş",
+      "createdAt": "2026-05-18T10:00:00Z"
+    },
+    {
+      "id": "tx-2",
+      "date": "2026-05-19",
+      "type": "EXPENSE",
+      "amount": 1200,
+      "currency": "GBP",
+      "description": "Maket Atölyesi Akrilik Levha ve Pleksiglas Alımı",
+      "category": "Maket Malzemesi",
+      "createdAt": "2026-05-19T14:30:00Z"
+    },
+    {
+      "id": "tx-3",
+      "date": "2026-05-20",
+      "type": "INCOME",
+      "amount": 3200,
+      "currency": "GBP",
+      "description": "Piksel Tasarım 3D Render Modelleme Entegrasyon Bedeli Tahsilatı",
+      "category": "3D Tasarım Hizmeti",
+      "createdAt": "2026-05-20T11:15:00Z"
+    },
+    {
+      "id": "tx-4",
+      "date": "2026-05-21",
+      "type": "EXPENSE",
+      "amount": 850,
+      "currency": "GBP",
+      "description": "Ahmet Erdem (Model Maker) Avans Ödemesi",
+      "category": "Personel Avansı",
+      "createdAt": "2026-05-21T09:00:00Z"
+    },
+    {
+      "id": "tx-1779448911926",
+      "date": "2026-05-22",
+      "type": "INCOME",
+      "amount": 20000,
+      "currency": "GBP",
+      "description": "GENEL TOPLAMDAN DÜŞ",
+      "category": "Hakediş Ödemesi",
+      "firmId": "firm-1",
+      "paymentMethod": "Nakit",
+      "createdAt": "2026-05-22T11:21:51.926Z"
+    },
+    {
+      "id": "tx-1779449961812",
+      "date": "2026-05-22",
+      "type": "EXPENSE",
+      "amount": 58500,
+      "currency": "TRY",
+      "description": "PRSONEL MAAŞI (959.02 GBP karşılığı 58500 TRY - Kur: 61)",
+      "category": "Hakediş Ödemesi",
+      "exchangeRate": 61,
+      "gbpEquivalent": 959.016393442623,
+      "paymentMethod": "Nakit",
+      "createdAt": "2026-05-22T11:39:21.812Z"
+    },
+    {
+      "id": "tx-auto-1779452904586",
+      "date": "2026-05-08",
+      "type": "INCOME",
+      "amount": 7000,
+      "currency": "GBP",
+      "description": "Esas Mimarlık Ofisi - OCEAN LİFE 500 Proje Kabulü",
+      "category": "Proje Onayı",
+      "firmId": "firm-1",
+      "proposalId": "prop-1779448322262",
+      "createdAt": "2026-05-22T12:28:24.586Z"
+    },
+    {
+      "id": "tx-1779453127799",
+      "date": "2026-05-22",
+      "type": "EXPENSE",
+      "amount": 50000,
+      "currency": "TRY",
+      "description": "[Elektrik] ofis harcaması (819.67 GBP karşılığı 50000 TRY - Kur: 61)",
+      "category": "Ofis Genel Gideri",
+      "exchangeRate": 61,
+      "gbpEquivalent": 819.672131147541,
+      "paymentMethod": "Havale",
+      "createdAt": "2026-05-22T12:32:07.799Z"
+    },
+    {
+      "id": "tx-1779453210858",
+      "date": "2026-05-22",
+      "type": "EXPENSE",
+      "amount": 5000,
+      "currency": "TRY",
+      "description": "[Peyzaj Çimi] mimari peyzaj sarf malzemesi (81.97 GBP karşılığı 5000 TRY - Kur: 61)",
+      "category": "Proje Sarf Gideri",
+      "exchangeRate": 61,
+      "gbpEquivalent": 81.9672131147541,
+      "paymentMethod": "Nakit",
+      "createdAt": "2026-05-22T12:33:30.858Z"
+    }
+  ],
+  "proposals": [
+    {
+      "id": "prop-1779448322262",
+      "firmId": "firm-1",
+      "title": "OCEAN LIFE 500",
+      "amount": 7000,
+      "currency": "GBP",
+      "status": "Kabul Edildi",
+      "date": "2026-05-08",
+      "createdAt": "2026-05-22T11:12:02.262Z",
+      "notes": "Mimari proje teslimi ve 1:100 ölçekli maket çalışmasını kapsar."
+    }
+  ],
+  "personel_giderleri": []
+}

@@ -1,0 +1,369 @@
+@import "tailwindcss";
+
+@theme {
+  --color-slate-50: #12121e;
+  --color-slate-100: #25253b;
+}
+
+/* ==========================================
+   Nocturnal Charcoal / Dark Navy Theme Setup
+   ========================================== */
+
+body {
+  background-color: #12121e !important;
+  color: #e2e2ee !important;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#main-panel {
+  background-color: #12121e !important;
+  color: #e2e2ee !important;
+}
+
+/* Header adapts to user's #1e1e2f slate-indigo vibe */
+header#header-section {
+  background-color: #1e1e2f !important;
+  border-bottom: 1.5px solid #28283f !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
+}
+
+#app-title-header {
+  color: #ffffff !important;
+}
+
+/* All default white containers morph into #1e1e2f panels */
+.bg-white {
+  background-color: #1e1e2f !important;
+  border-color: #2c2c42 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Generic slate-based borders neutralize to dark slate */
+.border-slate-100, 
+.border-slate-200, 
+.border-slate-50, 
+.border-slate-200\/50, 
+.border-slate-200\/60,
+.border-slate-100\/65, 
+.border-slate-100\/80,
+.border-slate-250,
+.border-amber-250,
+.border-emerald-250,
+.border-rose-250 {
+  border-color: #2a2a3f !important;
+}
+
+.divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #2a2a3f !important;
+}
+
+/* Light background panels (used in table lists, empty state templates) */
+.bg-slate-50, 
+.bg-slate-50\/50, 
+.bg-slate-50\/60, 
+.bg-slate-50\/70, 
+.bg-slate-50\/40,
+.bg-slate-100\/70 {
+  background-color: #161626 !important;
+}
+
+/* State management & search bar lists text colors mapping */
+.text-slate-900 {
+  color: #ffffff !important;
+}
+
+.text-slate-800 {
+  color: #eeeeff !important;
+}
+
+.text-slate-700 {
+  color: #dbdbee !important;
+}
+
+.text-slate-600 {
+  color: #b9b9cf !important;
+}
+
+.text-slate-500 {
+  color: #9797b5 !important;
+}
+
+.text-slate-450,
+.text-slate-400 {
+  color: #79799b !important;
+}
+
+/* Active primary buttons & navigation highlights */
+.bg-slate-900 {
+  background-color: #3b3b54 !important;
+  color: #ffffff !important;
+}
+
+.text-slate-500.hover\:bg-slate-100:hover, 
+.text-slate-500.hover\:text-slate-900:hover {
+  background-color: #29293f !important;
+  color: #ffffff !important;
+}
+
+/* Inset inputs, datefields, selects, search bars, textareas */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="tel"],
+select,
+textarea {
+  background-color: #141421 !important;
+  color: #ffffff !important;
+  border: 1px solid #2d2d44 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="tel"]:focus,
+select:focus,
+textarea:focus {
+  background-color: #1a1a2e !important;
+  border-color: #6366f1 !important; /* Elegant Indigo focus marker */
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+
+input::placeholder, 
+textarea::placeholder {
+  color: #626288 !important;
+}
+
+/* Interactive tables and lists */
+table {
+  background-color: #1e1e2f !important;
+}
+
+thead, 
+tr.bg-slate-50\/80 {
+  background-color: #141421 !important;
+}
+
+thead th {
+  color: #9797b5 !important;
+  border-bottom: 2px solid #2a2a3f !important;
+}
+
+tbody tr {
+  border-bottom: 1px solid #25253b !important;
+}
+
+tbody tr:hover {
+  background-color: #222238 !important;
+}
+
+/* KPI stats banners, buttons & glassmorphic state styles */
+.bg-amber-50, 
+.bg-amber-50\/60,
+.bg-amber-100 {
+  background-color: rgba(217, 119, 6, 0.12) !important;
+  color: #f59e0b !important;
+  border: 1px solid rgba(217, 119, 6, 0.25) !important;
+}
+
+.bg-emerald-50, 
+.bg-emerald-50\/70,
+.bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+.bg-rose-50, 
+.bg-rose-100 {
+  background-color: rgba(244, 63, 94, 0.12) !important;
+  color: #f43f5e !important;
+  border: 1px solid rgba(244, 63, 94, 0.25) !important;
+}
+
+.bg-indigo-50, 
+.bg-indigo-50\/20, 
+.bg-indigo-50\/40, 
+.bg-indigo-50\/50,
+.bg-indigo-100 {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  color: #a5b4fc !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+}
+
+.bg-blue-50, 
+.bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: #93c5fd !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.bg-purple-50,
+.bg-purple-100 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+  color: #c084fc !important;
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+}
+
+/* Standard alerts, toasts & confirmation cards styling */
+.bg-amber-50.text-amber-800,
+.bg-amber-50.text-amber-700 {
+  color: #f59e0b !important;
+}
+
+.bg-rose-50.text-rose-700,
+.bg-rose-50.text-rose-800 {
+  color: #f43f5e !important;
+}
+
+.bg-emerald-50.text-emerald-700,
+.bg-emerald-50.text-emerald-800 {
+  color: #10b981 !important;
+}
+
+/* Inactive button backgrounds */
+.bg-slate-50.hover\:bg-slate-100:hover {
+  background-color: #2d2d44 !important;
+}
+
+/* Custom gorgeous scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #12121e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #25253b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3c3c56;
+}
+
+/* ==========================================
+   Print Styles for Professional A4 Reports
+   ========================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm !important;
+  }
+  
+  /* Force clean white background and black text on all key components */
+  html, body, #root, #main-panel, .container, .main-panel, .card, table, 
+  #report-firm-view-container, #report-personnel-view-container, #report-expenses-view-container {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Prevent any leading empty space at the absolute top of the page */
+  body.printing-mode .print-target-active {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    top: 0 !important;
+    position: relative !important;
+  }
+
+  /* Hide all screen-only chrome elements, sidebars, interactive controls & buttons */
+  nav, .sidebar, #header-section, #nav-tabs, #auth-shield-card, #footer-section, .no-print,
+  .tab-buttons, .btn-glass, #login-overlay, button, input[type="button"], select, input,
+  #quick-actions-bar, .print-hide, svg {
+    display: none !important;
+  }
+
+  /* Make sure printing target containers display fully and fill page width */
+  #dashboard-content, .report-content, table,
+  #report-firm-view-container, #report-personnel-view-container, #report-expenses-view-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    background: #ffffff !important;
+  }
+
+  /* Compact and elegant page break prevention to keep content on a single page */
+  .break-inside-avoid, table, tr, td, th, thead, tbody, blockquote, pre, .grid, p, div {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Re-enable table display behavior */
+  table {
+    display: table !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Net, compact official table borders and paddings for paper printouts */
+  th, td {
+    border: 1px solid #dddddd !important;
+    color: #000000 !important;
+    padding: 4px 6px !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f3f4f6 !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+  }
+
+  /* Maintain contrast indicators/badges with high-visibility print colors */
+  .text-emerald-500, .text-emerald-600, .text-emerald-700 {
+    color: #15803d !important;
+    font-weight: bold !important;
+  }
+  .text-rose-500, .text-rose-600, .text-rose-700 {
+    color: #b91c1c !important;
+    font-weight: bold !important;
+  }
+  .text-amber-500, .text-amber-600, .text-amber-700 {
+    color: #b45309 !important;
+    font-weight: bold !important;
+  }
+
+  /* Align tables values correctly */
+  .text-right {
+    text-align: right !important;
+  }
+  .text-center {
+    text-align: center !important;
+  }
+
+  /* Display the printable header headers beautifully */
+  .print\:flex {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .print\:block {
+    display: block !important;
+  }
+  .hidden {
+    display: none !important;
+  }
+
+  /* Hide custom interactive widgets like progress adjustment bars */
+  .range-slider, [role="slider"] {
+    display: none !important;
+  }
+}
+
